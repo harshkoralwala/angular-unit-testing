@@ -6,6 +6,11 @@ describe('CalculatorComponent', () => {
   let component: CalculatorComponent;
   let calc: CalculatorService;
 
+  //beforeEach(): Called before each test specification
+  //beforeAll(): Called once before all the specification
+  //afterEach(): Called after each test specification
+  //beforeAllafterAll(): Called once after all the specifications.
+
   //You can write Object creation outside of beforeEach,if one test case has not impact on other test cases
   // let calc = new CalculatorService(); 
   // let component = new CalculatorComponent(calc);

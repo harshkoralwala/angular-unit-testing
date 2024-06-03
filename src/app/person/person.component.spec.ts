@@ -4,6 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { IPerson, PersonComponent } from './person.component';
 import { PersonService } from './person.service';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { By } from '@angular/platform-browser';
 
 
 let mockObjects = [{ "id": "1", "name": "Google Pixel 6 Pro", "data": { "color": "Cloudy White", "capacity": "128 GB" } }, { "id": "2", "name": "Apple iPhone 12 Mini, 256GB, Blue", "data": null }, { "id": "3", "name": "Apple iPhone 12 Pro Max", "data": { "color": "Cloudy White", "capacity GB": 512 } }, { "id": "4", "name": "Apple iPhone 11, 64GB", "data": { "price": 389.99, "color": "Purple" } }, { "id": "5", "name": "Samsung Galaxy Z Fold2", "data": { "price": 689.99, "color": "Brown" } }, { "id": "6", "name": "Apple AirPods", "data": { "generation": "3rd", "price": 120 } }, { "id": "7", "name": "Apple MacBook Pro 16", "data": { "year": 2019, "price": 1849.99, "CPU model": "Intel Core i9", "Hard disk size": "1 TB" } }, { "id": "8", "name": "Apple Watch Series 8", "data": { "Strap Colour": "Elderberry", "Case Size": "41mm" } }, { "id": "9", "name": "Beats Studio3 Wireless", "data": { "Color": "Red", "Description": "High-performance wireless noise cancelling headphones" } }, { "id": "10", "name": "Apple iPad Mini 5th Gen", "data": { "Capacity": "64 GB", "Screen size": 7.9 } }, { "id": "11", "name": "Apple iPad Mini 5th Gen", "data": { "Capacity": "254 GB", "Screen size": 7.9 } }, { "id": "12", "name": "Apple iPad Air", "data": { "Generation": "4th", "Price": "419.99", "Capacity": "64 GB" } }, { "id": "13", "name": "Apple iPad Air", "data": { "Generation": "4th", "Price": "519.99", "Capacity": "256 GB" } }];
@@ -24,7 +25,7 @@ describe('PersonComponent', () => {
         PersonService
       ],
       imports: [
-        HttpClientTestingModule,
+        HttpClientTestingModule, //a module that provides all of the tools that we need to properly test Angular HTTP Services
       ],
     }).compileComponents();
   });
@@ -73,28 +74,40 @@ describe('PersonComponent', () => {
     expect(component.getAllPerson()).toEqual([]);
   });
 
-  //f(focus) and x (exclude)
-  //f->Include i.e fdescibe,fit
-  //x ->exclude
+  //NOTE::f(focus) and x (exclude)
+  //NOTE::f->Include i.e fdescibe,fit
+  //NOTE::x ->exclude
   it('Should emit the value once emitToParent method calling.', () => {
     spyOn(component.data, 'emit');
     component.emitToParent();
     expect(component.data.emit).toHaveBeenCalledWith(true);
   });
 
+  it('should have HTML AS  Person Works', () => {
+    const title = fixture.debugElement.query(By.css('h1')).nativeElement;
+    // const title = fixture.debugElement.nativeElement.querySelector('#title');
+    expect(title.innerHTML).toBe('Person Works');
+  });
+
+
   it('should Get all Objects API', () => {
     component.getAllServerObjects().subscribe({
       next: (response) => {
+        //The callback function will be called when the observable emits a value
         // console.log(response);
         expect(response).toBeTruthy();
         expect(response.length).toBeGreaterThan(1);
       }
     });
-
+    //NOTE:: expectOne:=>Expect that a single request has been made which matches the given URL, and return its mock.
+    //NOTE:: use of the HttpTestingController to assert that one request was made to the service’s url property
+    //NOTE:: Below line creates a request object for an HTTP GET request to the URL 
+    //NOTE:: The 'expectOne' method returns a request object that can be used to assert that an HTTP request is made and that the response to the request matches the expected results.
     const mockHttpRequest = httpCtrl.expectOne({ method: 'GET', url: 'https://api.restful-api.dev/objects', });
     mockHttpRequest.flush(mockObjects); //send data through the stream
-    //this sort of seems to go against the normal testing pattern where you'd specify the data to be returned before the assertion statement. 
-    //flush statement is executed, it sends the mockObjects data through the stream, the subscribe block resolves and our assertion then takes place.
+    //OR mockHttpRequest.flush("", { status: 404, statusText: "Not Found" }); // to test error scenario
+    //NOTE:: This sort of seems to go against the normal testing pattern where you'd specify the data to be returned before the assertion statement. 
+    //NOTE:: The flush statement sends the mockObjects data through the stream, the subscribe block resolves and our assertion then takes place.
   });
 
 
@@ -108,7 +121,9 @@ describe('PersonComponent', () => {
         expect(response.name.length).toBeGreaterThan(5);
       }
     });
-    const mockHttpRequest = httpCtrl.expectOne({ method: 'GET', url: 'https://api.restful-api.dev/objects/' + id, });
+    const mockHttpRequest = httpCtrl.expectOne({ method: 'GET', url: 'https://api.restful-api.dev/objects/' + id });
+    expect(mockHttpRequest.request.method).toBe("GET");
+    expect(mockHttpRequest.request.url).toBe('https://api.restful-api.dev/objects/' + id);
     mockHttpRequest.flush(mockObjects[0]);
   });
 
